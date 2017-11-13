@@ -1,0 +1,6 @@
+src/TAGS
+doc/*.log
+doc/*.aux
+doc/*.out
+exato
+heuristica
