@@ -4,7 +4,7 @@
 
 #include <libaeds/memory/allocator.h>
 
-#include "bron-kerbosch.h"
+#include "graph/bron-kerbosch.h"
 #include "graph/simplegraph.h"
 #include "graph/vertex.h"
 #include "graph/vertexset.h"

@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "graph/simplegraph.h"
+#include "simplegraph.h"
 
 
 typedef struct OptimumMaxClique {
