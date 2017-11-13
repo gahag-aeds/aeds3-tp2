@@ -14,13 +14,14 @@ static void bronkerbosch(
   if (P == vset_empty) {
     if (X == vset_empty) { // P and X are empty: report R as a maximal clique.
       uint64_t sum = 0;
-      for (Vertex v = vset_first(R), top = vset_last(R); v <= top; v++) {
-        if (!vset_in(R, v))  // v is not in R
-          continue;
-        
+      VertexSet S = R;
+      for ( // Iterate over the bits in R.
+        Vertex v = vset_first(S);
+        S != vset_empty;
+        S = vset_sub(S, v), v = vset_first(S)
+      )
         sum += weights[v];
-      }
-    
+      
       if (sum > omc->sum)
         *omc = (OptimumMaxClique) {
           .order  = vset_order(R),
@@ -33,10 +34,12 @@ static void bronkerbosch(
   }
   
   // P is not empty:
-  for (Vertex v = vset_first(P), top = vset_last(P); v <= top; v++) {
-    if (!vset_in(P, v))  // v is not in P
-      continue;
-    
+  VertexSet S = P;
+  for ( // Iterate over the bits in P.
+    Vertex v = vset_first(S);
+    S != vset_empty;
+    S = vset_sub(S, v), v = vset_first(S)
+  ) {
     VertexSet N = simplegraph_neighborset(g, v);
     
     bronkerbosch(

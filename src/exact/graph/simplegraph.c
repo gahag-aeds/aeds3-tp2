@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <libaeds/data/resources/resource.h>
+
 
 struct SimpleGraph {
   const Allocator* allocator;
@@ -44,7 +46,7 @@ SimpleGraph* new_complete_simplegraph(const Allocator* allocator, Vertex order) 
     max_size,
     sizeof(bool)
   );
-    
+  
   *g = (SimpleGraph) {
     .allocator = allocator,
     
@@ -66,8 +68,16 @@ void delete_simplegraph(SimpleGraph** g) {
   }
 }
 
+static void delete_simplegraph_void(void* g) {
+  delete_simplegraph(g);
+}
 
-Vertex simplegraph_order(SimpleGraph* g) {
+ResourceDisposer simplegraph_disposer(void) {
+  return rs_disposer(delete_simplegraph_void);
+}
+
+
+Vertex simplegraph_order(const SimpleGraph* g) {
   assert(g != NULL);
   return g->order;
 }
@@ -92,19 +102,19 @@ bool* simplegraph_edge(SimpleGraph* g, Vertex i, Vertex j) {
 
 
 
-VertexSet simplegraph_vset(SimpleGraph* g) {
+VertexSet simplegraph_vset(const SimpleGraph* g) {
   assert(g != NULL);
   return vset_full >> (32 - simplegraph_order(g));
 }
 
-VertexSet simplegraph_neighborset(SimpleGraph* g, Vertex v) {
+VertexSet simplegraph_neighborset(const SimpleGraph* g, Vertex v) {
   assert(g != NULL);
   assert(v < simplegraph_order(g));
   
   VertexSet set = vset_empty;
   
   for (Vertex i = 0; i < simplegraph_order(g); i++)
-    if (i != v && *simplegraph_edge(g, v, i))
+    if (i != v && *simplegraph_edge((SimpleGraph*) g, v, i))
         set = vset_add(set, i);
   
   return set;

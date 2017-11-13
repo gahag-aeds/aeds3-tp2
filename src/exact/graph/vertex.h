@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 
-typedef uint8_t Vertex;
+typedef uint8_t Vertex; // Index of a vertex.
 
 
 #endif /* __VERTEX_H__ */

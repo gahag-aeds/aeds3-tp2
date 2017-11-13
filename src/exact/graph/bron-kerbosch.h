@@ -7,13 +7,18 @@
 #include "simplegraph.h"
 
 
+// A optimum maximum clique is the maxiaml clique in a
+// graph in which the sum of the vertices' weights is optimal.
 typedef struct OptimumMaxClique {
-  Vertex order;
-  uint64_t sum;
-  VertexSet clique;
+  Vertex order;     // The order of the clique.
+  uint64_t sum;     // The sum of the vertices's weights.
+  VertexSet clique; // The clique set.
 } OptimumMaxClique;
 
 
+// The Bron-Kerbosch algorithm to list all maximal cliques in a graph,
+// modified to find the OptimumMaxClique.
+// Complexity: TODO
 OptimumMaxClique optimum_bronkerbosch(SimpleGraph* g, uint32_t* weights);
 
 
