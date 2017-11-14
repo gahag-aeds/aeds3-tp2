@@ -1,7 +1,7 @@
-SrcDir       = src
-LibDir       = $(SrcDir)/lib*
-ExactDir     = $(SrcDir)/exact
-HeurDir = $(SrcDir)/heuristic
+SrcDir   = src
+LibDir   = $(SrcDir)/lib*
+ExactDir = $(SrcDir)/exact
+HeurDir	 = $(SrcDir)/heuristic
 
 find-c = $(shell find $(1) -name '*.c')
 
@@ -20,11 +20,11 @@ Libs     = -lm
 Warnings = -Wall -Wextra -Werror
 Optimize = -O2 -flto
 
-BuildFlags  = $(Warnings)       \
-              $(Standard)       \
-              $(Libs)           \
-              $(Optimize)       \
-              -I $(SrcDir)      \
+BuildFlags  = $(Standard)   \
+              $(Warnings)   \
+              $(Optimize)   \
+              $(Libs)       \
+              -I $(SrcDir)	\
               -o $(1)
 
 DebugFlags = -g
