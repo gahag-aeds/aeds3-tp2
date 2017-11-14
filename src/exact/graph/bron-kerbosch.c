@@ -34,7 +34,19 @@ static void bronkerbosch(
   }
   
   // P is not empty:
-  VertexSet S = P;
+  
+  // Choose the pivot u in P as the vertex with most neighbors.
+  Vertex u = vset_first(P);
+  VertexSet S = vset_sub(P, u);
+  for ( // Iterate over the bits in P.
+    Vertex v = vset_first(S);
+    S != vset_empty;
+    S = vset_sub(S, v), v = vset_first(S)
+  )
+    if (simplegraph_degree(g, v) > simplegraph_degree(g, u))
+      u = v;
+  
+  S = vset_minus(P, simplegraph_neighborset(g, u));
   for ( // Iterate over the bits in P.
     Vertex v = vset_first(S);
     S != vset_empty;
