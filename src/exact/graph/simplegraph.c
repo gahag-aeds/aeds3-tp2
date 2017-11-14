@@ -1,121 +1,53 @@
 #include "simplegraph.h"
 
 #include <assert.h>
-#include <string.h>
-
-#include <libaeds/data/resources/resource.h>
+#include <stddef.h>
 
 
-struct SimpleGraph {
-  const Allocator* allocator;
-  
-  Vertex order;
-  bool edges[]; // Adjacency triangle.
-};
-
-
-SimpleGraph* new_simplegraph(const Allocator* allocator, Vertex order) {
-  assert(allocator != NULL);
-  assert(order > 1);
-  
-  const size_t max_size = (order * order - order) / 2;
-  SimpleGraph* g = al_alloc_clear_fma(
-    allocator,
-    sizeof(SimpleGraph),
-    max_size,
-    sizeof(bool)
-  );
-  
-  *g = (SimpleGraph) {
-    .allocator = allocator,
-    
-    .order    = order,
-  };
-  
-  return g;
-}
-
-SimpleGraph* new_complete_simplegraph(const Allocator* allocator, Vertex order) {
-  assert(allocator != NULL);
-  assert(order > 1);
-  
-  const size_t max_size = (order * order - order) / 2;
-  SimpleGraph* g = al_alloc_fma(
-    allocator,
-    sizeof(SimpleGraph),
-    max_size,
-    sizeof(bool)
-  );
-  
-  *g = (SimpleGraph) {
-    .allocator = allocator,
-    
-    .order    = order,
-  };
-  
-  memset(g->edges, true, sizeof(bool[max_size]));
-  
-  return g;
-}
-
-
-void delete_simplegraph(SimpleGraph** g) {
+void simplegraph_complete(SimpleGraph* g) {
   assert(g != NULL);
   
-  if (*g != NULL) {
-    al_dealloc((*g)->allocator, *g);
-    *g = NULL;
-  }
-}
-
-static void delete_simplegraph_void(void* g) {
-  delete_simplegraph(g);
-}
-
-ResourceDisposer simplegraph_disposer(void) {
-  return rs_disposer(delete_simplegraph_void);
+  for (Vertex i = 0; i < g->order; i++)
+    g->neighbors[i] = vset_sub(vset_full, i); // All but the self loop. !
 }
 
 
-Vertex simplegraph_order(const SimpleGraph* g) {
+bool simplegraph_get_edge(SimpleGraph* g, Vertex i, Vertex j) {
   assert(g != NULL);
-  return g->order;
+  assert(i < g->order && j < g->order);
+  assert(i != j);
+  
+  return vset_in(g->neighbors[i], j);
 }
 
-
-bool* simplegraph_edge(SimpleGraph* g, Vertex i, Vertex j) {
+void simplegraph_add_edge(SimpleGraph* g, Vertex i, Vertex j) {
   assert(g != NULL);
-  assert(i < simplegraph_order(g) && j < simplegraph_order(g));
+  assert(i < g->order && j < g->order);
+  assert(i != j);
   
-  if (i > j) {  // Swap.
-    Vertex tmp = i;
-    i = j;
-    j = tmp;
-  }
+  g->neighbors[i] = vset_add(g->neighbors[i], j);
+  g->neighbors[j] = vset_add(g->neighbors[j], i);
+}
+
+void simplegraph_rem_edge(SimpleGraph* g, Vertex i, Vertex j) {
+  assert(g != NULL);
+  assert(i < g->order && j < g->order);
+  assert(i != j);
   
-  const size_t vertices = simplegraph_order(g);
-  // Indexing for the adjacency triangle:
-  const size_t index = (2*i*vertices + 2*j - i*i - 3*i - 2) / 2;
-  
-  return &g->edges[index];
+  g->neighbors[i] = vset_sub(g->neighbors[i], j);
+  g->neighbors[j] = vset_sub(g->neighbors[j], i);
 }
 
 
 
 VertexSet simplegraph_vset(const SimpleGraph* g) {
   assert(g != NULL);
-  return vset_full >> (32 - simplegraph_order(g));
+  return vset_full >> (sizeof(vset_full) * 8 - g->order);
 }
 
 VertexSet simplegraph_neighborset(const SimpleGraph* g, Vertex v) {
   assert(g != NULL);
-  assert(v < simplegraph_order(g));
+  assert(v < g->order);
   
-  VertexSet set = vset_empty;
-  
-  for (Vertex i = 0; i < simplegraph_order(g); i++)
-    if (i != v && *simplegraph_edge((SimpleGraph*) g, v, i))
-        set = vset_add(set, i);
-  
-  return set;
+  return g->neighbors[v];
 }

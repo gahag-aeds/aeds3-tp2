@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include <libaeds/data/resources/memory.h>
-#include <libaeds/data/resources/resource.h>
 #include <libaeds/memory/allocator.h>
 
 #include "graph/bron-kerbosch.h"
@@ -14,45 +12,40 @@
 
 int main() {
   const Allocator allocator = std_allocator(abort);
-  Resources res = new_resources(&allocator);
   
   Vertex corners;
   uint16_t neighbors;
   
-  
   if (scanf("%" SCNu8 " %" SCNu16, &corners, &neighbors) != 2)
-    return delete_resources(&res), -1;
+    return -1;
   
   
-  uint32_t* demands = rs_register_alloc(
-    &allocator, corners, sizeof(uint32_t),
-    rs_disposer_al(&allocator),
-    &res
-  );
+  uint32_t* demands = al_alloc(&allocator, corners, sizeof(*demands));
   
   for (uint8_t i = 0; i < corners; i++)
     if (scanf("%" SCNu32, &demands[i]) != 1)
-      return delete_resources(&res), -1;;
+      return al_dealloc(&allocator, demands), -1;
   
   
-  SimpleGraph* g = new_complete_simplegraph(&allocator, corners); {
-    rs_register(&g, simplegraph_disposer(), &res);
+  SimpleGraph g; {
+    g.order = corners;
+    simplegraph_complete(&g);
   }
   
   for (uint16_t i = 0; i < neighbors; i++) {
     Vertex from, to;
     
     if (scanf("%" SCNu8 " %" SCNu8, &from, &to) != 2)
-      return delete_resources(&res), -1;
+      return al_dealloc(&allocator, demands), -1;
     
     from--; // Input is 1-indexed.
     to--;
     
-    *simplegraph_edge(g, from, to) = false; // Complement graph
+    simplegraph_rem_edge(&g, from, to); // Complement graph
   }
   
   
-  OptimumMaxClique omc = optimum_bronkerbosch(g, demands);
+  OptimumMaxClique omc = optimum_bronkerbosch(&g, demands);
   
   
   printf("%" PRIu8 " %" PRIu64 "\n", omc.order, omc.sum);
@@ -63,11 +56,11 @@ int main() {
     s = vset_sub(s, v), v = vset_first(s)
   ) {
     if (printf("%" PRIu8 " ", v + 1) < 1)
-      return delete_resources(&res), -1;
+      return al_dealloc(&allocator, demands), -1;
   }
   if (puts("") < 0)
-    return delete_resources(&res), -1;
+    return al_dealloc(&allocator, demands), -1;
   
   
-  return delete_resources(&res), 0;
+  return al_dealloc(&allocator, demands), 0;
 }
