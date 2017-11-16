@@ -59,7 +59,7 @@ Vertex simplegraph_degree(SimpleGraph* g, Vertex v) {
 
 VertexSet simplegraph_vset(const SimpleGraph* g) {
   assert(g != NULL);
-  return vset_full >> (sizeof(vset_full) * 8 - g->order);
+  return vset_full >> ((sizeof(vset_full) * 8) - g->order);
 }
 
 VertexSet simplegraph_neighborset(const SimpleGraph* g, Vertex v) {

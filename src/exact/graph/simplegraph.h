@@ -5,13 +5,13 @@
 #include "vertexset.h"
 
 
-#define simplegraph_maxorder 30
+#define simplegraph_maxorder 64
 
 // A simple graph is an unweighted, undirected
 // graph containing no loops or multiple edges.
 // This implementation uses an adjacency list to store the edges.
 // The list is represented using integers bitwise.
-// The maximum supported order is 32.
+// The maximum supported order is 64.
 // Space complexity: O(n)
 typedef struct SimpleGraph {
   Vertex order;

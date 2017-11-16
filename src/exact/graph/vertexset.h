@@ -10,7 +10,7 @@
 // A set of vertexes is a binary number.
 // The bit at position i indicates if the i vertex is in the set.
 // Maximum set size, as specified: 30 vertexes. Therefore, 32 bits are enough.
-typedef uint32_t VertexSet;
+typedef uint64_t VertexSet;
 
 
 extern const VertexSet vset_empty; // The empty set

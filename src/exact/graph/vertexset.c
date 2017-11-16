@@ -4,29 +4,29 @@
 
 
 const VertexSet vset_empty = 0;
-const VertexSet vset_full = -1;
+const VertexSet vset_full = -1ll;
 
 
 bool vset_in(VertexSet s, Vertex v) {
-  return testbit_32(s, v);
+  return testbit_64(s, v);
 }
 
 
 Vertex vset_order(VertexSet s) {
-  return popcount_32(s);
+  return popcount_64(s);
 }
 
 Vertex vset_first(VertexSet s) {
-  return lsb_32(s);
+  return lsb_64(s);
 }
 
 Vertex vset_last(VertexSet s) {
-  return msb_32(s);
+  return msb_64(s);
 }
 
 
 VertexSet vset_cons(Vertex v) {
-  return 1 << v;
+  return 1ull << v;
 }
 
 
