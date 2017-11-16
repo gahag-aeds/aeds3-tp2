@@ -19,7 +19,7 @@ tptester.tp_test(
   
   graph = True,
   
-  input_file = lambda ix:  tests_dir + '/data/bench/' + str(ix) + '.in',
+  input_file = lambda ix:  tests_dir + '/data/bench/bipartite/' + str(ix) + '.in',
   answer_file = lambda ix: None, #tests_dir + '/data/toys/' + str(ix) + '.out',
   
   args = lambda ix: [ ],
