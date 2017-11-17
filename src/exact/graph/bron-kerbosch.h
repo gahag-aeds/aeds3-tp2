@@ -18,7 +18,7 @@ typedef struct OptimumMaxClique {
 
 // The Bron-Kerbosch algorithm to list all maximal cliques in a graph,
 // modified to find the OptimumMaxClique.
-// Complexity: TODO
+// Complexity: worst case O(3^(n/3))
 OptimumMaxClique optimum_bronkerbosch(SimpleGraph* g, uint32_t* weights);
 
 
