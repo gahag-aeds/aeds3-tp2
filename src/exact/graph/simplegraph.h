@@ -16,7 +16,6 @@
 typedef struct SimpleGraph {
   Vertex order;
   VertexSet neighbors[simplegraph_maxorder];
-  Vertex degree[simplegraph_maxorder];
 } SimpleGraph;
 
 
@@ -30,9 +29,6 @@ bool simplegraph_get_edge(SimpleGraph*, Vertex v, Vertex w);
 void simplegraph_add_edge(SimpleGraph*, Vertex v, Vertex w);
 // Remove a edge from the SimpleGraph. `v` must be different from `w`.
 void simplegraph_rem_edge(SimpleGraph*, Vertex v, Vertex w);
-
-// Get the degree of a vertex in the SimpleGraph.
-Vertex simplegraph_degree(SimpleGraph*, Vertex);
 
 
 // Get the VertexSet containing all the vertices of the graph.

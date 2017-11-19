@@ -10,8 +10,6 @@ void simplegraph_complete(SimpleGraph* g) {
   
   for (Vertex i = 0; i < g->order; i++)
     g->neighbors[i] = vset_sub(vset_full, i); // All but the self loop.
-  
-  memset(g->degree, g->order, sizeof(g->degree));
 }
 
 
@@ -30,9 +28,6 @@ void simplegraph_add_edge(SimpleGraph* g, Vertex i, Vertex j) {
   
   g->neighbors[i] = vset_add(g->neighbors[i], j);
   g->neighbors[j] = vset_add(g->neighbors[j], i);
-  
-  g->degree[i]++;
-  g->degree[j]++;
 }
 
 void simplegraph_rem_edge(SimpleGraph* g, Vertex i, Vertex j) {
@@ -42,17 +37,6 @@ void simplegraph_rem_edge(SimpleGraph* g, Vertex i, Vertex j) {
   
   g->neighbors[i] = vset_sub(g->neighbors[i], j);
   g->neighbors[j] = vset_sub(g->neighbors[j], i);
-  
-  g->degree[i]--;
-  g->degree[j]--;
-}
-
-
-Vertex simplegraph_degree(SimpleGraph* g, Vertex v) {
-  assert(g != NULL);
-  assert(v < g->order);
-  
-  return g->degree[v];
 }
 
 
