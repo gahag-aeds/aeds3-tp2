@@ -5,6 +5,7 @@
 \usepackage{algorithm}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{booktabs}
 \usepackage{calc}
 \usepackage{caption}
 \usepackage{graphicx}
@@ -13,6 +14,7 @@
 \usepackage{multirow,multicol}
 \usepackage{newfloat}
 \usepackage{relsize}
+\usepackage{siunitx}
 \usepackage{svg}
 \usepackage[super,square]{natbib}
 \usepackage[noend]{algpseudocode}
@@ -69,7 +71,7 @@
 
 
 \section{Introdução}
-A startup de Nubby foi contratada pela Uaibucks para calcular a melhor forma de implantar filiais em determinada cidade. A Uaibucks deseja implantar suas filiais em esquinas, mas com a restrição de não implantar filiais em esquinas vizinhas para evitar concorrência. Além disso, a Uaibucks possui dados da demanda esperada de cada esquina candidata, e deseja maximizar a demanda total no plano de implantação.
+A startup de Nubby foi contratada pela Uaibucks para calcular a melhor forma de implantar filiais em determinada cidade. A Uaibucks deseja implantar suas filiais em esquinas, mas com a restrição de não implantar filiais em esquinas vizinhas para evitar auto-concorrência. Além disso, a Uaibucks possui dados da demanda esperada de cada esquina candidata, e deseja maximizar a demanda total no plano de implantação.
 
 
 \section{Visão Geral da Solução}
@@ -103,7 +105,7 @@ Há um algoritmo bem conhecido para listar cliques máximas em um grafo: algorit
   \begin{algorithmic}[1]
     \Procedure{Bron-Kerbosch}{$G$}
       \State max $\gets \varnothing$
-      \State\Call{recursion}{$\varnothing$, $V(G)$, $\varnothing$}
+      \State\Call{recursion}{$\varnothing$, $V(G)$, $\varnothing$} \Comment{$V(G)$ is the vertex set of $G$.}
       \State\Return max
     \EndProcedure
     \vspace{5pt}
@@ -134,11 +136,11 @@ Porém, após realizar a análise experimental, foi constatado que o programa ex
 
 Devido à necessidade recorrente de se obter o conjunto de vizinhos de um vértice no algoritmo, o grafo foi representado de forma que essa operação tenha complexidade $\mathcal{O}(1)$. Para cada vértice, ao invés de uma lista de adjacentes, é armazenado um único inteiro que representa o conjunto dos adjacentes. Tal estratégia requer uma implementação mais elaborada para ler a entrada, mas apresentou uma grande melhora na performance do algoritmo.
 
-\subsection{Heurística}
-
 
 \pagebreak
 
+
+\subsection{Heurística}
 
 \section{Análise de Complexidade}
 
@@ -168,7 +170,7 @@ A análise experimental das implementações é mostrada pelas figuras. Para rea
   \centering
   \includesvg[width=0.49\linewidth]{images/exact-time}
   \includesvg[width=0.49\linewidth]{images/exact-space}
-  \caption{Teste experimental do algoritmo exato.}
+  \caption{Ensaio do algoritmo exato.}
   \label{fig:experimental-exato}
 \end{figure}
 \vspace{-10pt}
@@ -176,9 +178,9 @@ A análise experimental das implementações é mostrada pelas figuras. Para rea
   \centering
   \includesvg[width=0.49\linewidth]{images/heuristic-time}
   \includesvg[width=0.49\linewidth]{images/heuristic-space}
-  \caption{Teste experimental da heurística.}
+  \caption{Ensaio da heurística.}
 \end{figure} \\
-É interessante observar na \autoref{fig:experimental-exato} que o comportamento exponencial do algoritmo exato é notável apenas a partir das entradas de tamanho 50. Isso se deve às estratégias utilizadas para tornar as operações intrínsecas do algoritmo rápidas.
+É interessante observar na \autoref{fig:experimental-exato} que o comportamento exponencial do algoritmo exato é notável apenas a partir das entradas de tamanho 50. Isso se deve às estratégias utilizadas para tornar rápidas as operações intrínsecas do algoritmo.
 \\[5pt]
 Também é notável que a heurística se mostra extremamente rápida, mesmo para entradas muito grandes.
 
@@ -190,22 +192,27 @@ Também é notável que a heurística se mostra extremamente rápida, mesmo para
 Para avaliar a qualidade da heurística, uma comparação dos resultados produzidos a partir das entradas \textit{toys} fornecidas pelos monitores foi realizada.
 \begin{table}[h]
   \centering
-  \begin{tabular}{ c c c c }
-    \hline
+  \begin{tabular}{
+      c
+      S[ table-number-alignment = center, table-figures-decimal = 0 ]
+      S[ table-number-alignment = center, table-figures-decimal = 0 ]
+      S[ table-number-alignment = center, table-figures-decimal = 0 ]
+    }
+    \toprule
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{Demanda total} \\
-    \cline{2-4}
-    \multicolumn{1}{c}{Toy} & Algoritmo exato & Heurística & \multicolumn{1}{c}{Degradação} \\ \hline
-    3  & 170 & 170 & \phantom{0}0  \% \\
-    7  & 30  & 30  & \phantom{0}0  \% \\
-    6  & 139 & 125 & 11 \% \\
-    5  & 304 & 250 & 18 \% \\
-    8  & 265 & 199 & 25 \% \\
-    9  & 312 & 207 & 34 \% \\
-    10 & 198 & 124 & 38 \% \\
-    1  & 118 & 57  & 52 \% \\
-    4  & 10  & 4   & 60 \% \\
-    2  & 168 & 57  & 67 \% \\
-    \hline
+    \cmidrule{2-4}
+    \multicolumn{1}{c}{Toy} & {Algoritmo exato} & {Heurística} & \multicolumn{1}{c}{Degradação} \\ \midrule
+     3 & 170 & 170 & { 0\,\%} \\
+     7 &  30 &  30 & { 0\,\%} \\
+     6 & 139 & 125 & {10\,\%} \\
+     5 & 304 & 250 & {18\,\%} \\
+     8 & 265 & 199 & {25\,\%} \\
+     9 & 312 & 207 & {34\,\%} \\
+    10 & 198 & 124 & {37\,\%} \\
+     1 & 118 &  57 & {52\,\%} \\
+     4 &  10 &   4 & {60\,\%} \\
+     2 & 168 &  57 & {66\,\%} \\
+    \bottomrule
   \end{tabular}
   \caption{Comparação entre a otimalidade das soluções}
 \end{table} \\
