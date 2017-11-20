@@ -1,0 +1,222 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{calc}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{lmodern}
+\usepackage{multirow,multicol}
+\usepackage{newfloat}
+\usepackage{relsize}
+\usepackage{svg}
+\usepackage[super,square]{natbib}
+\usepackage[noend]{algpseudocode}
+\usepackage[portuguese]{babel}
+\usepackage{tikz, tikz-qtree}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bottom]{footmisc}
+\usepackage[normalem]{ulem}
+\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+
+
+\setlength{\parskip}{5pt}%
+
+\DeclareFloatingEnvironment[fileext=lod]{diagram}
+\captionsetup[diagram]{labelformat=empty}
+%\captionsetup[figure]{labelformat=empty}
+
+\makeatletter
+\renewcommand{\ALG@name}{Algoritmo}
+\makeatother
+
+
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  
+  \vfill{
+    \bfseries\Huge
+    Universidade Federal de Minas Gerais\\[5pt]
+    \bfseries\Large
+    Bacharel em Sistemas de Informação \\
+    Algoritmos e Estruturas de Dados 3\\
+  }
+  
+  \vfill
+  
+  \includegraphics[width=13cm]{images/ufmg_logo.jpg}
+  
+  \vfill{
+    \bfseries\Large
+    Trabalho Prático 2\\
+    Novembro 2017\\
+  }
+  \vfill{
+    \bfseries\large
+    Gabriel Silva Bastos\\[5pt]
+    Matrícula: 2016058204
+  }
+\end{titlepage}
+
+
+\section{Introdução}
+A startup de Nubby foi contratada pela Uaibucks para calcular a melhor forma de implantar filiais em determinada cidade. A Uaibucks deseja implantar suas filiais em esquinas, mas com a restrição de não implantar filiais em esquinas vizinhas para evitar concorrência. Além disso, a Uaibucks possui dados da demanda esperada de cada esquina candidata, e deseja maximizar a demanda total no plano de implantação.
+
+
+\section{Visão Geral da Solução}
+O plano de implantação das filiais pode ser modelado como um problema de grafos. No grafo, cada esquina é modelada como um vértice, e cada vértice possui como peso a demanda associada. Há uma aresta entre dois vértices caso as esquinas correspondentes sejam vizinhas. O grafo não é direcionado, pois a relação de vizinhança é comutativa. As arestas não possuem peso. Portanto, o grafo é simples.\footnote{\url{http://mathworld.wolfram.com/SimpleGraph.html}}
+
+No grafo, como cada vértice representa uma esquina, desejamos obter um conjunto de vértices não vizinhos que maximize a demanda total. Para tal, exploramos o conceito de conjunto máximo independente.\footnote{\url{https://en.wikipedia.org/wiki/Maximal_independent_set}} Pela definição, um conjunto máximo independente é um conjunto que não é subconjunto de nenhum outro conjunto independente. Em outras palavras, não há vértice fora do conjunto que, ao ser adicionado, mantenha a propriedade de Independência\footnote{\url{https://en.wikipedia.org/wiki/Independent_set_(graph_theory)}} do conjunto. Considerando que a demanda mínima para uma esquina é zero, um conjunto máximo independente possui demanda total sempre maior ou igual à de seus subconjuntos.
+
+Portanto, para maximizar a demanda, selecionamos dentre todos os conjuntos máximos independentes o conjunto que gera a maior demanda total.
+
+\subsection{NP-Completo}
+O problema do conjunto máximo independente pode ser definido como um problema de decisão:
+\[ \text{O grafo $G$ possui algum conjunto máximo independente de tamanho $\geq k$?} \]
+
+Partindo do fato que o problema da clique máxima é NP-Completo\footnote{\url{https://en.wikipedia.org/wiki/Clique_problem\#NP-completeness}}, podemos provar que o problema do conjunto máximo independente é NP-Completo.
+\begin{equation} \label{eq:cmi-clique}
+  \text{Se $S$ é um conjunto máximo independente em um grafo $G$, então $S$ é uma clique máxima no grafo $G'$.}\footnote{\url{https://en.wikipedia.org/wiki/Maximal_independent_set\#Related_vertex_sets}}
+\end{equation}
+\\[-5pt]
+Tal relação permite uma transformação polinomial de uma clique máxima para um conjunto máximo \mbox{independente}, pois o grafo complemento pode ser obtido em tempo polinomial.
+\[ \text{Conjunto máximo independente} \propto \text{Clique máxima} \]
+Portanto, o conjunto máximo independente é pelo menos tão difícil quanto a clique máxima. \\
+Sendo a clique máxima NP-Completo, o conjunto máximo independente é NP-Completo.
+
+\subsection{Entrada}
+A entrada consiste de um número $n$ de vértices, e um número $m$ de arestas. Em seguida, os pesos de cada vértice e, logo após, os pares que formam cada aresta.
+
+\subsection{Algoritmo exato}
+Há um algoritmo bem conhecido para listar cliques máximas em um grafo: algoritmo de Bron-Kerbosch.\cite{Bron:1973:AFC:362342.362367} Tal algoritmo foi utilizado em conjunto com a propriedade~\eqref{eq:cmi-clique} para listar os conjuntos máximos \mbox{independentes}, e destes selecionar o que gera a maior soma dos pesos dos vértices. A versão com pivoteamento descrita por Tomita \textit{et al}.\cite{TOMITA200628} foi implementada para melhor performance:
+\begin{algorithm}
+  \caption{Bron-Kerbosch com pivoteamento}
+  \begin{algorithmic}[1]
+    \Procedure{Bron-Kerbosch}{$G$}
+      \State max $\gets \varnothing$
+      \State\Call{recursion}{$\varnothing$, $V(G)$, $\varnothing$}
+      \State\Return max
+    \EndProcedure
+    \vspace{5pt}
+    \Procedure{recursion}{$R$, $P$, $X$}
+      \If {$P \cup X = \varnothing$} \Comment{$R$ is a maximal clique.}
+        \If {weight$(R)$ > weight(max)}
+          \State max $\gets R$
+        \EndIf
+      \EndIf
+      \vspace{3pt}
+      \State $u \gets$ choose one vertex in $P \cup X$ maximizing $|P \cap \Gamma(u)|$ \Comment{$\Gamma(x)$ is the neighbor set of $x$.}
+      \For{\textbf{each} vertex $v$ \textbf{in} $P \setminus \Gamma(u)$}
+        \State\Call{recursion}{$R \cup \{v\}$, $P \cap \Gamma(v)$, $X \cap \Gamma(v)$}
+        \State $P \gets P \setminus \{v\}$
+        \State $X \gets X \cup \{v\}$
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Para representar os conjuntos de vértices, considerando que $30$ foi a ordem máxima especificada para o grafo, um inteiro de largura fixa de 32 \textit{bits} seria suficiente. Cada \textit{bit} corresponde à presença do vértice no grupo. Tal estratégia torna rápidas as operações necessárias para o algortimo, como união, interseção e subtração de conjuntos.
+\begin{align*}
+  0 \hdots 0 \> 00011010_2 &\equiv \{1, 3, 4\} \\
+  0 \hdots 1 \> 00100101_2 &\equiv \{0, 2, 5, 8\} \\
+  0 \hdots 0 \> 11111111_2 &\equiv \{0, 1, 2, 3, 4, 5, 6, 7\}
+\end{align*}
+Porém, após realizar a análise experimental, foi constatado que o programa executava em um centésimo de segundo para entradas de tamanho $30$. Portanto, para permitir experimentos mais conclusivos, inteiros com largura de 64 \textit{bits} foram utilizados, permitindo entradas com até 64 vértices.
+
+Devido à necessidade recorrente de se obter o conjunto de vizinhos de um vértice no algoritmo, o grafo foi representado de forma que essa operação tenha complexidade $\mathcal{O}(1)$. Para cada vértice, ao invés de uma lista de adjacentes, é armazenado um único inteiro que representa o conjunto dos adjacentes. Tal estratégia requer uma implementação mais elaborada para ler a entrada, mas apresentou uma grande melhora na performance do algoritmo.
+
+\subsection{Heurística}
+
+
+\pagebreak
+
+
+\section{Análise de Complexidade}
+
+\subsection{Algoritmo exato}
+\subsubsection{Espacial}
+Para cada vértice, um inteiro representando o peso e um inteiro de 64 \textit{bits} representando o conjunto de seus adjacentes são armazenados. Portanto, a complexidade espacial é $\Theta(|V| + |V|)$ = $\Theta(|V|)$.
+\subsubsection{Temporal}
+De acordo com Tomita \textit{et al}.\cite{TOMITA200628}, a complexidade do algoritmo de Bron-Kerbosch com a técnica de \mbox{pivoteamento} possui complexidade $\mathcal{O}(3^{|V|/3})$ no pior caso. Esta complexidade é ótima, pois segundo Moon e Moser\cite{Moon1965}, um grafo com $n$ vértices possui no máximo $3^{n/3}$ cliques máximas.
+
+\subsection{Heurística}
+\subsubsection{Espacial}
+Para cada vértice, são armazenados um inteiro representando o peso e um \textit{byte} indicando a presença do vértice no conjunto independente. Portanto, a complexidade espacial é $\Theta(|V| + |V|)$ = $\Theta(|V|)$.
+\subsubsection{Temporal}
+Devido à construção incremental do grafo, inicialmente este não possui arestas, então o conjunto máximo independente possui todos os vértices. Antes da leitura das arestas, é calculada a soma dos pesos de todos os vértices, com complexidade $\Theta(|V|)$.
+
+Para cada aresta na entrada, uma aresta pode ser removida do conjunto independente. Tal remoção apresenta complexidade $\Theta(1)$, devido à representação do conjunto independente como um vetor de \textit{bytes}. Portanto, a complexidade desta operação é $\Theta(|A|)$.
+
+Complexidade final: $\Theta(|V| + |A|)$.
+
+
+\pagebreak
+
+
+\section{Análise Experimental}
+A análise experimental das implementações é mostrada pelas figuras. Para realizar os experimentos, diversas entradas foram construídas. Para medir o tempo de execução do código, foi utilizada a informação de uso de recursos fornecida pelo sistema operacional linux.\footnote{\url{https://en.wikipedia.org/wiki/Procfs}} A razão inicial é verificar, de forma geral, o comportamento do algoritmo para casos genéricos.
+\begin{figure}[h]
+  \centering
+  \includesvg[width=0.49\linewidth]{images/exact-time}
+  \includesvg[width=0.49\linewidth]{images/exact-space}
+  \caption{Teste experimental do algoritmo exato.}
+  \label{fig:experimental-exato}
+\end{figure}
+\vspace{-10pt}
+\begin{figure}[h]
+  \centering
+  \includesvg[width=0.49\linewidth]{images/heuristic-time}
+  \includesvg[width=0.49\linewidth]{images/heuristic-space}
+  \caption{Teste experimental da heurística.}
+\end{figure} \\
+É interessante observar na \autoref{fig:experimental-exato} que o comportamento exponencial do algoritmo exato é notável apenas a partir das entradas de tamanho 50. Isso se deve às estratégias utilizadas para tornar as operações intrínsecas do algoritmo rápidas.
+\\[5pt]
+Também é notável que a heurística se mostra extremamente rápida, mesmo para entradas muito grandes.
+
+
+\pagebreak
+
+
+\subsection{Comparação das soluções}
+Para avaliar a qualidade da heurística, uma comparação dos resultados produzidos a partir das entradas \textit{toys} fornecidas pelos monitores foi realizada.
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ c c c c }
+    \hline
+    \multicolumn{1}{c}{} & \multicolumn{3}{c}{Demanda total} \\
+    \cline{2-4}
+    \multicolumn{1}{c}{Toy} & Algoritmo exato & Heurística & \multicolumn{1}{c}{Degradação} \\ \hline
+    3  & 170 & 170 & \phantom{0}0  \% \\
+    7  & 30  & 30  & \phantom{0}0  \% \\
+    6  & 139 & 125 & 11 \% \\
+    5  & 304 & 250 & 18 \% \\
+    8  & 265 & 199 & 25 \% \\
+    9  & 312 & 207 & 34 \% \\
+    10 & 198 & 124 & 38 \% \\
+    1  & 118 & 57  & 52 \% \\
+    4  & 10  & 4   & 60 \% \\
+    2  & 168 & 57  & 67 \% \\
+    \hline
+  \end{tabular}
+  \caption{Comparação entre a otimalidade das soluções}
+\end{table} \\
+É notável que metade dos resultados apresentou degradação inferior a 30\%. Tal resultado indica uma boa aproximação produzida pela heurística.
+
+\section{Conclusão}
+
+
+\pagebreak
+
+\bibliography{bib/tomita,bib/bron-kerbosch,bib/moon-moser}
+\bibliographystyle{plain}
+
+\end{document}

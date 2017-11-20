@@ -2,5 +2,8 @@ src/TAGS
 doc/*.log
 doc/*.aux
 doc/*.out
+doc/*.bbl
+doc/*.blg
+doc/svg-inkscape
 exato
 heuristica
