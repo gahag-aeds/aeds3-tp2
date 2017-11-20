@@ -141,6 +141,11 @@ Devido à necessidade recorrente de se obter o conjunto de vizinhos de um vérti
 
 
 \subsection{Heurística}
+Para a heurística, a entrada foi interpretada como uma construção incremental do grafo. Desta forma, antes da leitura das arestas, o grafo é considerado vazio e o conjunto independente possui todos os vértices. Cada aresta lida da entrada é adicionada ao grafo, e possivelmente resulta na remoção de um vértice do conjunto independente. Assim, sempre quando dois vértices no conjunto independente são conectados por uma aresta, um destes é removido do conjunto para manter a propriedade de independência. Ao final da leitura de todas as arestas, o conjunto é independente no grafo.
+
+Este algoritmo é muito simples, mas oferece a vantagem de ser muito rápido por operar com custo baixo logo na leitura de cada aresta, que já é necessária devido ao formato da entrada.
+
+Não há nenhuma garantia de que o conjunto independente gerado será próximo máximo, nem que será próximo do conjunto que gera a maior soma dos pesos. Outro detalhe a ser notado é que o algoritmo é sensível à ordem das arestas na entrada. Portanto, diferentes entradas descrevendo o mesmo grafo podem gerar saídas muito diferentes.
 
 \section{Análise de Complexidade}
 
@@ -219,6 +224,15 @@ Para avaliar a qualidade da heurística, uma comparação dos resultados produzi
 É notável que metade dos resultados apresentou degradação inferior a 30\%. Tal resultado indica uma boa aproximação produzida pela heurística.
 
 \section{Conclusão}
+Grafos são uma forma elaborada de modelar vários problemas, e esta estrutura de dados apresenta toda uma classe de algoritmos. É importante saber como modelar os problemas em grafos, e quais algoritmos são necessários para extrair cada tipo de informação necessária para o problema.
+
+Problemas NP-Completo estão presentes na nossa realidade, e precisamos de ferramentas eficientes para resolvê-los. Além da formalidade necessária para provar que um problema é NP-Completo, desenvolvemos diferentes formas de abordar o problema.
+
+Algoritmos exatos produzem respostas ideais, e são úteis não só para obter tais respostas, mas também para fornecer uma base de comparação para outras soluções. Porém, estes algoritmos são viáveis apenas para entradas pequenas, devido à sua alta complexidade.
+
+Algoritmos aproximados são interessantes quando existe a necessidade de um certo nível de correção da resposta, porém pode ser complexo o desenvolvimento do algortimo e da prova da sua razão de aproximação.
+
+Heurísticas são especialmente interessantes quando precisamos de uma resposta para o problema, não necessariamente próxima da ótima, mas de forma muito rápida. É interessante como heurísticas simples podem apresentar bons resultados em complexidade muito inferior à do algoritmo exato.
 
 
 \pagebreak
